@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    image: api-gateway
+    container_name: api-gateway
+    build: ./api-gateway
+    ports:
+      - '7000:7000'
+    networks:
+      - social-media-app
+    env_file: ./api-gateway/.env
+    depends_on:
+      - redis
+      - rabbitmq
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://localhost:5672
+
+  auth-service:
+    image: auth-service
+    container_name: auth-service
+    build: ./auth-service
+    ports:
+      - '7001:7001'
+    networks:
+      - social-media-app
+    env_file: ./auth-service/.env
+    depends_on:
+      - redis
+      - rabbitmq
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://localhost:5672
+
+  post-service:
+    image: post-service
+    container_name: post-service
+    build: ./post-service
+    ports:
+      - '7002:7002'
+    networks:
+      - social-media-app
+    env_file: ./post-service/.env
+    depends_on:
+      - redis
+      - rabbitmq
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://localhost:5672
+
+  media-service:
+    image: media-service
+    container_name: media-service
+    build: ./media-service
+    ports:
+      - '7003:7003'
+    networks:
+      - social-media-app
+    env_file: ./media-service/.env
+    depends_on:
+      - redis
+      - rabbitmq
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://localhost:5672
+
+  search-service:
+    image: search-service
+    container_name: search-service
+    build: ./search-service
+    ports:
+      - '7004:7004'
+    networks:
+      - social-media-app
+    env_file: ./search-service/.env
+    depends_on:
+      - redis
+      - rabbitmq
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://localhost:5672
+
+redis:
+  image: redis:alpine
+  ports:
+    - '6379:6379'
+
+rabbitmq:
+  image: rabbitmq:3-management
+  ports:
+    - '5672:5672'
+    - '15672:15672'
+
+healthcheck:
+  test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+  interval: 30s
+  timeout: 10s
+  retries: 5
