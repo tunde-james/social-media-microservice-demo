@@ -1,13 +1,15 @@
-FROM node:18-alpine
+FROM node:20-alpine
+
+RUN npm install -g pnpm
 
 WORKDIR /use/src/app
 
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml* ./
 
-RUN pnpm ci --only=production
+RUN pnpm install --frozen-lockfile --prod
 
 COPY . .
 
 EXPOSE 7000
 
-CMD ["node", "src/index.js"]
+CMD ["node", "src/server.js"]
